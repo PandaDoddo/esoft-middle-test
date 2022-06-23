@@ -51,7 +51,7 @@ class SeedTestingTasksForEveryUser extends ParentSeeder
 
         $this->userRepository->All()->each(
             function (User $user) use ($tasksWithImportantAttributes) {
-                $subordinates = app(GetUserSubordinatesByUserIdTask::class)->run($user->id);
+                $subordinates = app(GetUserSubordinatesByUserIdTask::class)->run($user->id)?->merge([$user]);
                 $tasksWithImportantAttributes->each(function ($item) use ($subordinates, $user) {
                     try {
                         $subordinate = $subordinates?->random();
@@ -59,10 +59,8 @@ class SeedTestingTasksForEveryUser extends ParentSeeder
                         $subordinate = $user;
                     }
 
-                    $taskFrom = $subordinate->supervisor ?? $user;
-
                     $taskData = array_merge([
-                        'title' => 'Заголовок от ' . $user->login,
+                        'title' => 'Задача от ' . $user->login,
                         'description' => 'Описание задачи...',
                         'priority' => array_rand([
                              TaskPrioritiesEnum::LOW->value,
@@ -70,7 +68,7 @@ class SeedTestingTasksForEveryUser extends ParentSeeder
                              TaskPrioritiesEnum::HIGH->value,
                         ]),
                         'responsible_user_id' => $subordinate->id,
-                        'created_by_user_id' => $taskFrom->id
+                        'created_by_user_id' => $user->id
                     ], $item);
 
                     $this->todoListTaskRepository->create($taskData);
