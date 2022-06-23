@@ -1,0 +1,6 @@
+{
+    "name": "apiato/todolist",
+    "description": "TodoList Container for apiato.",
+    "require": {
+    }
+}
